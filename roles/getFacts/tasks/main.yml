@@ -1,0 +1,17 @@
+---
+# tasks file for roles/getFacts
+- name: get ios facts
+  cisco.ios.ios_facts:
+    gather_subset: all
+  when: ansible_net_os == cisco.ios.ios
+
+# tasks file for roles/getFacts
+- name: get ios facts
+  cisco.ios.ios_command:
+    commands: show run
+  when: ansible_net_os == cisco.ios.ios
+  register: config
+
+- name: debug
+  debug:
+    var: config

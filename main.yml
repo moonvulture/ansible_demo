@@ -1,0 +1,15 @@
+---
+- name: baseline
+  hosts: all
+  gather_facts: true
+  tasks:
+    
+    - name: active common role
+      ansible.builtin.include_role: 
+        name: common
+      tags: baseline
+
+    - name: get facts role
+      ansible.builtin.include_role:
+        name: getFacts
+      tags: get_facts

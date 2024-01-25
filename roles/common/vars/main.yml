@@ -1,2 +1,8 @@
 ---
 # vars file for common
+radius_server_group: RADIUS01
+tacacs_server_group: TACACS01
+domain_name: lab.win
+domain_list1: dns.lab.win
+name_server1: 1.1.1.1
+name_server2: 8.8.8.8
