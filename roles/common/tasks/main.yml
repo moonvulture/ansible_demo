@@ -1,0 +1,9 @@
+---
+# tasks file for common
+- name: apply baseline template
+  ansible.netcommon.cli_config:
+    config: "{{ lookup('template', 'config.j2') }}"
+    backup: yes
+    backup_options:
+      filename: "{{ inventory_hostname }}_{{ datetime }}.cfg"
+      dir_path: "{{ backup_file_path }}"
