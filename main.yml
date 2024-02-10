@@ -6,10 +6,10 @@
     
     - name: active common role
       ansible.builtin.include_role: 
-        name: common
+        name: day1
       tags: baseline
 
     - name: get facts role
       ansible.builtin.include_role:
         name: getFacts
-      tags: get_facts
+      tags: getFacts
