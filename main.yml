@@ -3,13 +3,13 @@
   hosts: all
   gather_facts: true
   tasks:
-    
+
     - name: active common role
       ansible.builtin.include_role: 
         name: day1
       tags: baseline
 
-    - name: get facts role
-      ansible.builtin.include_role:
-        name: getFacts
-      tags: getFacts
+    # - name: get facts role
+    #   ansible.builtin.include_role:
+    #     name: getFacts
+    #   tags: getFacts

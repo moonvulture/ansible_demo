@@ -1,5 +1,7 @@
 ---
 # vars file for day1
+backup_file_path: "/home/ec2-user/projects/ansible_demo/backups"
+datetime: "{{ '%Y-%m-%d' | strftime }}"
 radius_server_group: RADIUS01
 tacacs_server_group: TACACS01
 domain_name: lab.win
