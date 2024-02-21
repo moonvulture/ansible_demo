@@ -1,5 +1,6 @@
 stages:
   - lint
+  - deploy
 
 ansible_lint:
   stage: lint
@@ -9,13 +10,10 @@ ansible_lint:
   script:
     - ansible-lint playbook.yml  # Lint an example playbook
 
-stages:
-  - deploy
-
 deploy_to_production:
   stage: deploy
   script:
-    - ansible-playbook -i inventory site.yml --tags "baseline" --extra-vars local_password=${local_password} local_user=${local_user}
+    - ansible-playbook -i inventory site.yml --tags "baseline" --extra-vars "local_password=${local_password} local_user=${local_user}"
   rules:
     - if: '$CI_COMMIT_BRANCH == "main" && $CI_PIPELINE_SOURCE == "merge_request_event"'
       when: manual
@@ -23,4 +21,3 @@ deploy_to_production:
   environment:
     name: production
     url: https://yourproduction.environment.url
-
