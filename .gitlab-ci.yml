@@ -1,4 +1,15 @@
 stages:
+  - lint
+
+ansible_lint:
+  stage: lint
+  image: python:3.9  # Using Python image as an example
+  before_script:
+    - pip install ansible-lint  # Install Ansible Lint
+  script:
+    - ansible-lint playbook.yml  # Lint an example playbook
+
+stages:
   - deploy
 
 deploy_to_production:
@@ -12,3 +23,4 @@ deploy_to_production:
   environment:
     name: production
     url: https://yourproduction.environment.url
+
