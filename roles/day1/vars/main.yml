@@ -8,3 +8,4 @@ domain_name: lab.win
 domain_list1: dns.lab.win
 name_server1: 1.1.1.1
 name_server2: 8.8.8.8
+name_server3: 2.2.2.2
