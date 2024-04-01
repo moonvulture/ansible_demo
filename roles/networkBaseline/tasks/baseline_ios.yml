@@ -1,0 +1,16 @@
+---
+# Cisco IOS/IOS-XE Baseline 
+- name: Create configurtion file
+  block:
+
+    - name: Creating IOS template from roles/networkBaseline/templates/ios_config.j2
+      ansible.builtin.template:
+        src: roles/networkBaseline/templates/ios_config.j2
+        dest: "{{ item }}"
+      delegate_to: localhost
+      loop:
+        - roles/networkBaseline/staging/{{ cfg_filename }}
+        - roles/networkBaseline/backups/staged/{{ datetime }}/{{ cfg_filename }}
+  tags:
+    - build
+    - deploy
