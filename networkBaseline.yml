@@ -1,0 +1,54 @@
+---
+# this playbook dynamically applies the security baseline to the device
+# devices are baselined according to their host vars and group vars
+# templates and tasks for the baselines are in the roles/networkBaseline directory
+- name: site playbook
+  hosts: all 
+  gather_facts: false
+# variables for this playbook
+# group specific variables, such as tacacs servers, local passwords, are in group vars
+# host specific variables, such as contact string, platform, model, are in host vars
+# other variables for the baseline templates are in roles/networkBaseline/vars/main.yml
+  vars:
+    baseline_date: "20240215"
+    datetime: "{{ '%Y-%m-%d'|strftime }}"
+  vars_files:
+    - roles/networkBaseline/vars/secrets.yml
+  # use this if you want to prompt the user for tacacs credentials 
+  
+  pre_tasks: # these are the pre-tasks that set up the environment
+    - name: 
+      block:
+        - name: Creating configuration file name  # this sets the configuration file name variable
+          set_fact:
+            cfg_filename: "{{ inventory_hostname }}_baseline_{{ baseline_date }}.cfg"
+          delegate_to: localhost
+
+        - name: set fact  # this sets the snmp contact string variable
+          set_fact:
+            snmp_contact: "{{ lookup('template','roles/networkBaseline/templates/snmp_contact.j2') }}"
+          delegate_to: localhost
+
+        - name: Include vars from /roles/networkBaseline/vars # this imports all of the variables from the vars directory
+          include_vars:
+            dir: roles/networkBaseline/vars
+
+        - name: Creating staging and backup directories   # this task creates the backup and staging directories where the confg files are stored before scp to the device
+          ansible.builtin.file:
+            path: "{{ item }}"
+            state: directory
+          loop: # the loop will create each directory listed here
+            - roles/networkBaseline/staging
+            - roles/networkBaseline/backups/staged/{{ datetime }}
+
+      delegate_to: localhost
+      tags:
+        - build
+        - deploy
+
+  tasks:
+    - ansible.builtin.include_role: # this triggers the baseline role located under roles/networkBaseline
+        name: networkBaseline
+      tags: 
+        - build
+        - deploy
