@@ -1,0 +1,10 @@
+---
+# tasks file for roles/networkBackup
+- name: Backing up devices
+  ansible.netcommon.cli_backup:
+    dir_path: "{{ item }}"                                     # backup_path variable is the date time variable set in networkBackup.yml
+    filename: "{{ inventory_hostname }}.cfg"                   # inventory_hostname is an ansible default variable for the 'host' name in the inventory file
+  vars:
+    ansible_connection: ansible.netcommon.network_cli          # this variable must be set for network_cli. Juniper devices default to netconf, which is not compatible with the ansible.netcommon.cli_backup module
+  loop: "{{ backup_dir }}"
+  when: "'Edge' not in group_names"                            # these devices (FTDv and VPN gateways) cannot be backed up and are exluded from the playbook here
