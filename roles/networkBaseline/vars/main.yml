@@ -1,0 +1,21 @@
+--- 
+delete_username: 
+  - "!"
+delete_tacacs:
+  - 1.1.1.1
+  - 2.2.2.2
+domain_lists:
+  - domain1.com
+  - domain2.com
+name_servers:
+  - 1.1.1.10
+  - 1.1.1.11
+ntp_config:
+  - name: 10.1.1.10
+    key: 1
+  - name: 10.1.1.11
+    key: 1
+ntp_key_name: 1
+configured_ntp_server:
+  - 10.1.1.30
+  - 10.1.1.40
