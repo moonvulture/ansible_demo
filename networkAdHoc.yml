@@ -1,0 +1,9 @@
+---
+- name: site playbook
+  hosts: all 
+  gather_facts: false
+
+  tasks:
+    - name: Enter Config
+      ansible.netcommon.cli_config:
+        config: "{{ lookup('file', 'adHocTemplate') }}"
