@@ -1,0 +1,26 @@
+---
+- name: Baseline IOS
+  ansible.builtin.include_tasks: baseline_ios.yml
+  when: ansible_network_os == "cisco.ios.ios"
+  tags:
+    - build
+    - deploy
+
+- name: Baseline NX-OS
+  ansible.builtin.include_tasks: baseline_nxos.yml
+  when: ansible_network_os == "cisco.nxos.nxos"
+  tags:
+    - build
+    - deploy
+
+- name: Baseline JUNOS
+  ansible.builtin.include_tasks: baseline_junos.yml
+  when: ansible_network_os == "junipernetworks.junos.junos"
+  tags:
+    - build
+    - deploy
+
+- name: deploy to device
+  ansible.builtin.import_tasks: deployBaseline.yml
+  tags:
+    - deploy
