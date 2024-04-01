@@ -1,0 +1,58 @@
+---
+- name: Executing network backup - Opening the pod bay doors    # this will run the playbook against all hosts. if you need to limit it against a specific host or group, use the '-l' switch. 
+  hosts: all 
+  gather_facts: false
+  vars:
+    backup_dir:
+      - "/backups/ansible/latest"  # this is the latest directory in the backup path 
+      - "/backups/ansible/{{ datetime }}"    # this is used for the data directory
+    backup_latest:          
+    datetime: "{{ '%Y-%m-%d'|strftime }}"         # this sets the variable for the date thats used in the backup directory creation
+
+  pre_tasks:                                    # tasks to run before the backup
+    - name: Starting Pre-tasks                  # these pretasks validate the directory structure and removes all backups older than 365 days
+      block:
+
+        - name: creating date directory variable
+          set_fact:
+            backup_path: "/backups/ansible/{{ datetime }}"
+
+        - name: Identifying aged backups (365 days)
+          ansible.builtin.find:
+            paths: /backups/ansile/
+            age: 365d
+            file_type: directory
+          register: old_backups
+
+        - name: Remove aged backups (365 days)
+          ansible.builtin.file:
+            path: "{{ item.path }}"
+            state: absent
+          loop: "{{ old_backups.files }}"
+
+        - name: Creating daily backup directory   # this creates the daily backup directory
+          ansible.builtin.file:
+            path: "{{ backup_path }}"
+            state: directory
+          delegate_to: localhost
+        
+        - name: verify directory status           # gets status of directory    
+          ansible.builtin.stat:
+            path: "{{ backup_path }}"
+          register: path_status
+
+        - name: Validating directory status       # asserts that the backup directory is available before performing backups
+          ansible.builtin.assert:                 # if the directory is not availble, the playbook fails
+            that: 
+              - path_status.stat.isdir is defined and path_status.stat.isdir
+            fail_msg: "I'm sorry Dave, I'm afraid I can't do that. Backup Directory {{ backup_path }} not available"
+            success_msg: "Backup Directory {{ backup_path }} available"
+            quiet: True
+      delegate_to: localhost
+      run_once: true
+
+# this calls the role that performs the actual backup.
+# the tasks for this role are located in ./roles/networkBackup/tasks/main.yml
+  tasks:
+    - ansible.builtin.include_role:
+        name: networkBackup
