@@ -1,0 +1,21 @@
+---
+  # cache facts settings in ansible.cfg:
+  # fact_checking = yaml
+  # fact_caching_connection=/nmb/rcce-ansible/ansible_fact_cache
+  # fact_caching_timeout = 86400
+
+- name: Firmware Upgrade
+  hosts: all 
+  gather_facts: false
+  vars:
+    datetime: "{{ '%Y-%m-%d'|strftime }}"
+    image_path: "roles/networkUpgrade/files"
+    firmware_filename: "cat4500e-universalk9.SPA.03.11.10.E.152-7.E10.bin"
+    firmware_hash: "c7f72a1e84bc08a22c59a9dbc493556c"
+    
+  tasks:
+
+# this starts the networkUpgrade role in roles/networkUpgrade/tasks/main.yml
+    - name: Starting networkUpgrade role
+      ansible.builtin.include_role: 
+        name: networkUpgrade
