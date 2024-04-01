@@ -1,0 +1,82 @@
+acl_ext_96:
+  aces:
+    '10':
+      ace: 10
+      remark: "====RCC-MONITORING===="
+      actions:
+        permit
+      destination_network:
+        any
+      protocol:
+        ipv4
+      source_network:
+        host:
+          10.10.10.103
+        mask:
+          255.255.255.255
+        cidr:
+          10.10.10.103/32
+    '20':
+      ace: 20
+      remark: null
+      actions:
+        permit
+      destination_network:
+        any
+      protocol:
+        ipv4
+      source_network:
+        host:
+          10.10.20.0
+        mask:
+          0.0.0.63
+        cidr:
+          10.10.20.0/26
+    '30':
+      ace: 30
+      remark: "====ETNOSC-MONITORING===="
+      actions:
+        permit
+      destination_network:
+        any
+      protocol:
+        ipv4
+      source_network:
+        host:
+          10.10.10.101
+        mask:
+          255.255.255.255
+        cidr:
+          10.10.10.101/32
+    '40':
+      ace: 40
+      remark: null
+      actions:
+        permit
+      destination_network:
+        any
+      protocol:
+        ipv4
+      source_network:
+        host:
+          10.10.10.102
+        mask:
+          255.255.255.255
+        cidr:
+          10.10.10.102/32
+    '50':
+      ace: 50
+      remark: null
+      actions:
+        deny
+      destination_network:
+        any
+      protocol:
+        ipv4
+      source_network:
+        host:
+          any
+        mask:
+          any
+        cidr:
+          any
