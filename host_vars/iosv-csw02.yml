@@ -1,2 +1,10 @@
 ---
-hostname: iosv-csw02
+ticket: CS1029458
+ansible_add_date: '2024-03-25'
+ansible_host: 10.10.10.1
+baseline_date: '20240215'
+device_type: Cisco 1921K9
+last_baseline_date: 20240215
+make: Cisco
+model_class: Switch-Router
+module: ios
