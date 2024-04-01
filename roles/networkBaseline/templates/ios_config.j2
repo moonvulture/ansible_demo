@@ -1,0 +1,313 @@
+no service config
+no boot network
+no call-home
+no service call-home
+no ip http server
+no ip http secure-server
+!
+no service internal
+no service single-slot-reload-enable
+no service linenumber
+no fabric buffer-reserve
+no vstack
+!
+ip scp server enable
+!
+no ip ftp username
+no ip ftp password
+no ftp-server write-enable
+no ip ftp passive
+no ip ftp source-interface
+!
+vtp mode off
+ip cef
+!
+int null 0
+ no ip unreachables
+!
+no ip dhcp smart-relay
+fast port-span
+!
+no ip access-list extended ACL_100
+ip access-list extended ACL_100
+{% for acl in acl_ext_100.aces.values() %}
+{% if acl.remark and acl.remark != 'none' %}
+remark {{ acl.remark }}
+{% endif %}
+{{ acl.actions }} ip {% if acl.source_network.host == 'any' and acl.destination_network == 'any' %}any any{% elif acl.source_network.mask == '255.255.255.255' %}host {{ acl.source_network.host }} any{% else %}{{ acl.source_network.host }} {{ acl.source_network.mask }} any{% endif %} log-input
+{% endfor %}
+!
+aaa new-model
+{# roles/baseline/vars.yml #}
+{% for tacacs in delete_tacacs %}
+no tacacs-server host {{ tacacs }}
+{% endfor %}
+!
+{% for tacacs in configured_tacacs %}
+tacacs server {{ tacacs.hostname }}
+ address ipv4 {{ tacacs.ip }}
+ key {{ tacacs.key }}
+{% endfor %}
+!
+aaa group server tacacs+ EntTacacs+
+{% for tacacs in configured_tacacs %}
+ server name {{ tacacs.hostname }}
+ server-private {{ tacacs.ip }} key {{ tacacs.key }}
+{% endfor %}
+!
+aaa authentication login vtymethod group EntTacacs+ local enable
+aaa authentication login conmethod group EntTacacs+ local enable
+aaa authentication enable default enable none
+aaa authorization console
+aaa authorization config-commands
+aaa authorization exec conmethod group EntTacacs+ local if-authenticated
+aaa authorization exec vtymethod group EntTacacs+ local
+aaa authorization commands 0 conmethod group EntTacacs+ local if-authenticated
+aaa authorization commands 0 vtymethod group EntTacacs+ local if-authenticated
+aaa authorization commands 4 conmethod group EntTacacs+ local if-authenticated
+aaa authorization commands 4 vtymethod group EntTacacs+ local if-authenticated
+aaa authorization commands 15 conmethod group EntTacacs+ local if-authenticated
+aaa authorization commands 15 vtymethod group EntTacacs+ local if-authenticated
+aaa accounting exec default start-stop group EmtTacacs+ 
+aaa accounting commands 0 default start-stop group EntTacacs+ 
+aaa accounting commands 4 default start-stop group EntTacacs+ 
+aaa accounting commands 15 default start-stop group EntTacacs+ 
+!
+ip http max-connections 1
+!
+line vty 0 4
+ session-limit 5
+!
+login on-failure log
+login on-success log
+login block-for 900 attempts 3 within 120
+!
+{# roles/baseline/vars.yml #}
+{% for username in delete_username %}
+no username {{ username }}
+{% endfor %}
+!
+no enable password
+!
+line con 0
+ password 7 {{ console_pass }}
+!
+!
+exit
+!
+enable secret 5 {{ enable_pass }}
+!
+username admin privilege 0 secret {{ local_pass }}
+username admin privilege 0 common-criteria-policy RCC_PWD_POLICY secret {{ local_pass }}
+!
+{# this is a AOR specific variable #}
+{# group_vars/APC_baseline #}
+!
+no aaa group server tacacs+ Tacacs+
+!
+tacacs-server retransmit 2
+tacacs-server timeout 2
+no tacacs-server directed-request
+ip tacacs source-interface {{ mgmt_source }}
+!
+ip domain lookup
+ip ospf name-lookup
+no ip ospf domain lookup
+ip domain name alias.5sigcmd.army.mil
+!
+{% for domain in domain_lists %}
+ip domain-list {{ domain }}
+{% endfor %}
+!
+{% for name_server in name_servers %}
+ip name-server {{ name_server }}
+{% endfor %}
+!
+no ipv6 unicast-routing
+no ipv6 multicast-routing
+no mls flow ipv6
+no ipv6 mfib
+no ipv6 mfib hardware-switching replication-mode ingress
+no ipv6 mfib hardware-switching
+no ipv6 mld snooping
+!
+no ipv6 unicast-routing
+no ipv6 multicast-routing
+no mls flow ipv6
+no ipv6 mfib
+no ipv6 mfib hardware-switching replication-mode ingress
+no ipv6 mfib hardware-switching
+no ipv6 mld snooping
+!
+archive
+log config
+logging enable
+logging size 500
+notify syslog contenttype plaintext
+hidekeys
+!
+! ---- ACCESS CONTROL ----
+line vty 0 4
+no access-class ACL_100 in
+no access-class ACL_100 in vrf-also
+!
+no ip access-list standard ACL_100
+no ip access-list extended ACL_100
+ip access-list extended ACL_100
+remark ACCESS CONTROL MGMT
+{% for acl in acl_ext_100.aces.values() %}
+{% if acl.remark and acl.remark != 'none' %}
+remark {{ acl.remark }}
+{% endif %}
+{{ acl.actions }} ip {% if acl.source_network.host == 'any' and acl.destination_network == 'any' %}any any{% elif acl.source_network.mask == '255.255.255.255' %}host {{ acl.source_network.host }} any{% else %}{{ acl.source_network.host }} {{ acl.source_network.mask }} any{% endif %} log-input
+{% endfor %}
+!
+no access-list 10
+{% for acl in acl_std_10.aces.values() %}
+{% if acl.remark and acl.remark != 'none' %}
+access-list 10 remark {{ acl.remark }}
+{% endif %}
+{% if acl.source_network.host == 'any' %}
+{% if acl.log %}
+access-list 10 {{ acl.actions }} any log
+{% else %}
+access-list 10 {{ acl.actions }} any
+{% endif %}
+{% elif acl.source_network.mask == None or acl.source_network.mask == 'None' %}
+access-list 10 {{ acl.actions }} {{ acl.source_network.host }}
+{% else %}
+access-list 10 {{ acl.actions }} {{ acl.source_network.host }} {{ acl.source_network.mask }}
+{% endif %}
+{% endfor %}
+!
+no ip access-list extended ACL_20
+ip access-list extended ACL_20
+{% for acl in acl_ext_20.aces.values() %}
+{% if acl.remark and acl.remark != 'none' %}
+remark {{ acl.remark }}
+{% endif %}
+{{ acl.actions }} ip {% if acl.source_network.host == 'any' and acl.destination_network == 'any' %}any any{% elif acl.source_network.mask == '255.255.255.255' %}host {{ acl.source_network.host }} any{% else %}{{ acl.source_network.host }} {{ acl.source_network.mask }} any{% endif %} log-input
+{% endfor %}
+!
+{% for snmp_entry in snmp %}
+no snmp-server user {{ snmp_entry.name }} {{ snmp_entry.group }} v3
+no snmp-server group {{ snmp_entry.group }} v3 priv
+{% endfor %}
+!
+{% for host in snmp_hosts_ro %}
+snmp-server host {{ host }} version 3 priv SNMP_RW
+{% endfor %}
+{% for host in snmp_hosts_rw %}
+snmp-server host {{ host }} version 3 priv SNMP_RO
+{% endfor %}
+!
+no snmp-server community public ro
+no snmp-server community private rw
+!
+no banner login
+banner login #
+You are accessing a U.S. Government (USG) Information System (IS) 
+that is provided for USG-authorized use only.  By using this IS 
+(which includes any device attached to this IS), 
+you consent to the following conditions:
+
+-The USG routinely intercepts and monitors communications on this 
+IS for purposes including, but not limited to, penetration testing, 
+COMSEC monitoring, network operations and defense, personnel 
+misconduct (PM), law enforcement (LE), and counterintelligence 
+(CI) investigations.
+
+-At any time, the USG may inspect and seize data stored on this IS.
+
+-Communications using, or data stored on, this IS are not private, 
+are subject to routine monitoring, interception, and search, and may 
+be disclosed or used for any USG-authorized purpose.
+
+-This IS includes security measures (e.g., authentication and access 
+controls) to protect USG interests--not for your personal benefit or 
+privacy.
+
+-Notwithstanding the above, using this IS does not constitute consent 
+to PM, LE or CI investigative searching or monitoring of the content 
+of privileged communications, or work product, related to personal 
+representation or services by attorneys, psychotherapists, or clergy, 
+and their assistants. Such communications and work product are private 
+and confidential. See User Agreement for details.
+#
+!
+line con 0
+ exec-timeout 5 0
+ timeout login response 120
+ logout-warning 60
+ no stopbits
+!
+line vty 0 4
+ session-timeout 5
+ exec-timeout 5 0
+ transport input ssh
+!
+line vty 5 15
+ session-timeout 5
+ exec-timeout 5 0
+ transport input none
+!
+line vty 16 31
+ session-timeout 5
+ exec-timeout 5 0
+ transport input none
+!
+line aux 0
+ access-class ACL_100 in
+ exec-timeout 0 1
+ no exec
+ transport input none
+!
+{# roles/baseline/vars.yml #}
+{% for server in ntp_config %}
+no ntp server {{ server.name }} key {{ server.key }}
+no ntp server {{ server.name }}
+{% endfor %}
+!
+ntp authentication-key {{ ntp_key_name }} md5 {{ vault_ntp_key_value }} 0
+ntp authenticate
+ntp trusted-key {{ ntp_key_name }}
+{% for server in configured_ntp_server %}
+ntp server {{ server }} key {{ ntp_key_name }}
+{% endfor %}
+clock timezone UTC 0 0
+no clock summer-time
+!
+int null 0
+ no ip unreachables
+!
+int vlan 1
+ description shutdown;unused
+ no ip address
+ shutdown
+!
+vtp mode off
+!
+errdisable detect cause security-violation shutdown vlan
+errdisable recovery cause udld
+errdisable recovery cause bpduguard
+errdisable recovery cause security-violation
+errdisable recovery cause channel-misconfig
+errdisable recovery cause pagp-flap
+errdisable recovery cause dtp-flap
+errdisable recovery cause link-flap
+errdisable recovery cause sfp-config-mismatch
+errdisable recovery cause gbic-invalid
+errdisable recovery cause l2ptguard
+errdisable recovery cause psecure-violation
+errdisable recovery cause port-mode-failure
+errdisable recovery cause dhcp-rate-limit
+errdisable recovery cause pppoe-ia-rate-limit
+errdisable recovery cause mac-limit
+errdisable recovery cause vmps
+errdisable recovery cause storm-control
+errdisable recovery cause inline-power
+errdisable recovery cause arp-inspection
+errdisable recovery cause psp
+errdisable recovery interval 300
+!
+snmp-server contact {{ snmp_contact }}
