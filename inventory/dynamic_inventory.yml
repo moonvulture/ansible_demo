@@ -1,0 +1,9 @@
+---
+plugin: ansible.builtin.constructed
+strict: false
+groups:
+  iosxe_firmware_asr1000: "'ASR100' in ansible_net_model"
+  iosxe_firmware_cat3k: "'WS-C3850' in ansible_net_model"
+  iosxe_firmware_4500: "'WS-C4500' in ansible_net_model"
+  iosxe_firmware_cat9k: "'C9500' in ansible_net_model"
+  ANS_AOR: "102:ANS" in snmp_contact
